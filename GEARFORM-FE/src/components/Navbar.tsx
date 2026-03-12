@@ -1,7 +1,10 @@
 import React from "react";
 import "./Navbar.css";
+import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
+  const navigate = useNavigate(); // ✅ Hook fora do return
+
   return (
     <nav className="navbar">
       <div className="logo">
@@ -16,7 +19,9 @@ const Navbar: React.FC = () => {
         <li><a href="#">Blog</a></li>
       </ul>
 
-      <button className="nav-btn">ENTRAR</button>
+      <button className="nav-btn" onClick={() => navigate("/login")}>
+        ENTRAR
+      </button>
     </nav>
   );
 };

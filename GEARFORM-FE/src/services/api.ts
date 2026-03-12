@@ -1,0 +1,172 @@
+import { mockUsers, mockProducts, mockCategories } from './mockData';
+import type { User, Product, Category } from '../types';
+
+// ---- HELPERS ----
+
+// Simula delay de rede para parecer real
+const delay = (ms = 400) => new Promise(res => setTimeout(res, ms));
+
+// Banco de dados em memória (reinicia ao recarregar a página)
+let users = [...mockUsers];
+let products = [...mockProducts];
+let categories = [...mockCategories];
+let nextId = 100;
+
+// Simula paginação
+function paginate<T>(data: T[], page: number, perPage: number) {
+  const total = data.length;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  const from = (page - 1) * perPage;
+  const sliced = data.slice(from, from + perPage);
+  return { data: sliced, total, page, perPage, lastPage };
+}
+
+// ---- AUTH ----
+export const authService = {
+  login: async (email: string, password: string) => {
+    await delay();
+    const user = users.find(u => u.email === email);
+    if (!user || password.length < 3) {
+      throw { response: { data: { message: 'E-mail ou senha incorretos' } } };
+    }
+    const token = 'mock-token-' + user.id;
+    return { data: { token, user } };
+  },
+
+  register: async (data: Partial<User> & { password?: string }) => {
+    await delay();
+    if (users.find(u => u.email === data.email)) {
+      throw { response: { data: { message: 'E-mail já cadastrado' } } };
+    }
+    const newUser: User = {
+      id: ++nextId,
+      name: data.name!,
+      email: data.email!,
+      cpf: data.cpf!,
+      role: 'Usuário',
+    };
+    users.push(newUser);
+    return { data: newUser };
+  },
+
+  me: async () => {
+    await delay();
+    return { data: users[0] };
+  },
+};
+
+// ---- USERS ----
+export const userService = {
+  list: async (page = 1, perPage = 10) => {
+    await delay();
+    return { data: paginate(users, page, perPage) };
+  },
+
+  getById: async (id: number) => {
+    await delay();
+    const user = users.find(u => u.id === id);
+    if (!user) throw { response: { data: { message: 'Usuário não encontrado' } } };
+    return { data: user };
+  },
+
+  update: async (id: number, data: Partial<User>) => {
+    await delay();
+    users = users.map(u => u.id === id ? { ...u, ...data } : u);
+    return { data: users.find(u => u.id === id) };
+  },
+
+  delete: async (id: number) => {
+    await delay();
+    users = users.filter(u => u.id !== id);
+    return { data: {} };
+  },
+};
+
+// ---- PRODUCTS ----
+export const productService = {
+  list: async (page = 1, perPage = 10) => {
+    await delay();
+    return { data: paginate(products, page, perPage) };
+  },
+
+  getById: async (id: number) => {
+    await delay();
+    const product = products.find(p => p.id === id);
+    if (!product) throw { response: { data: { message: 'Produto não encontrado' } } };
+    return { data: product };
+  },
+
+  create: async (data: Partial<Product>) => {
+    await delay();
+    const category = categories.find(c => c.id === Number(data.categoryId));
+    const newProduct: Product = {
+      id: ++nextId,
+      name: data.name!,
+      description: data.description!,
+      price: Number(data.price),
+      stock: Number(data.stock),
+      categoryId: Number(data.categoryId),
+      category,
+    };
+    products.push(newProduct);
+    return { data: newProduct };
+  },
+
+  update: async (id: number, data: Partial<Product>) => {
+    await delay();
+    const category = categories.find(c => c.id === Number(data.categoryId));
+    products = products.map(p =>
+      p.id === id ? { ...p, ...data, price: Number(data.price), stock: Number(data.stock), category } : p
+    );
+    return { data: products.find(p => p.id === id) };
+  },
+
+  delete: async (id: number) => {
+    await delay();
+    products = products.filter(p => p.id !== id);
+    return { data: {} };
+  },
+};
+
+// ---- CATEGORIES ----
+export const categoryService = {
+  list: async (page = 1, perPage = 10) => {
+    await delay();
+    return { data: paginate(categories, page, perPage) };
+  },
+
+  listAll: async () => {
+    await delay();
+    return { data: categories };
+  },
+
+  getById: async (id: number) => {
+    await delay();
+    const category = categories.find(c => c.id === id);
+    if (!category) throw { response: { data: { message: 'Categoria não encontrada' } } };
+    return { data: category };
+  },
+
+  create: async (data: Partial<Category>) => {
+    await delay();
+    const newCategory: Category = { id: ++nextId, name: data.name!, description: data.description! };
+    categories.push(newCategory);
+    return { data: newCategory };
+  },
+
+  update: async (id: number, data: Partial<Category>) => {
+    await delay();
+    categories = categories.map(c => c.id === id ? { ...c, ...data } : c);
+    return { data: categories.find(c => c.id === id) };
+  },
+
+  delete: async (id: number) => {
+    await delay();
+    categories = categories.filter(c => c.id !== id);
+    return { data: {} };
+  },
+
+  
+};
+
+export default {};
