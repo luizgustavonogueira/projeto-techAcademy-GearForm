@@ -3,16 +3,16 @@ import type { User, Product, Category } from '../types';
 
 // ---- HELPERS ----
 
-// Simula delay de rede para parecer real
+// Simula delay de rede
 const delay = (ms = 400) => new Promise(res => setTimeout(res, ms));
 
-// Banco de dados em memória (reinicia ao recarregar a página)
-let users = [...mockUsers];
+// Banco em memória
+let users: any[] = [...mockUsers];
 let products = [...mockProducts];
 let categories = [...mockCategories];
 let nextId = 100;
 
-// Simula paginação
+// Paginação
 function paginate<T>(data: T[], page: number, perPage: number) {
   const total = data.length;
   const lastPage = Math.max(1, Math.ceil(total / perPage));
@@ -25,27 +25,47 @@ function paginate<T>(data: T[], page: number, perPage: number) {
 export const authService = {
   login: async (email: string, password: string) => {
     await delay();
-    const user = users.find(u => u.email === email);
-    if (!user || password.length < 3) {
+
+    const emailNormalized = email.trim().toLowerCase();
+
+    const user = users.find(
+      u => u.email.trim().toLowerCase() === emailNormalized
+    );
+
+    if (!user || user.password !== password) {
       throw { response: { data: { message: 'E-mail ou senha incorretos' } } };
     }
+
     const token = 'mock-token-' + user.id;
-    return { data: { token, user } };
+
+    return {
+      data: {
+        token,
+        user,
+      },
+    };
   },
 
   register: async (data: Partial<User> & { password?: string }) => {
     await delay();
-    if (users.find(u => u.email === data.email)) {
+
+    const emailNormalized = data.email!.trim().toLowerCase();
+
+    if (users.find(u => u.email.trim().toLowerCase() === emailNormalized)) {
       throw { response: { data: { message: 'E-mail já cadastrado' } } };
     }
-    const newUser: User = {
+
+    const newUser: any = {
       id: ++nextId,
       name: data.name!,
-      email: data.email!,
+      email: emailNormalized,
       cpf: data.cpf!,
+      password: data.password, // 🔥 corrigido
       role: 'Usuário',
     };
+
     users.push(newUser);
+
     return { data: newUser };
   },
 
@@ -99,6 +119,7 @@ export const productService = {
   create: async (data: Partial<Product>) => {
     await delay();
     const category = categories.find(c => c.id === Number(data.categoryId));
+
     const newProduct: Product = {
       id: ++nextId,
       name: data.name!,
@@ -108,6 +129,7 @@ export const productService = {
       categoryId: Number(data.categoryId),
       category,
     };
+
     products.push(newProduct);
     return { data: newProduct };
   },
@@ -115,9 +137,13 @@ export const productService = {
   update: async (id: number, data: Partial<Product>) => {
     await delay();
     const category = categories.find(c => c.id === Number(data.categoryId));
+
     products = products.map(p =>
-      p.id === id ? { ...p, ...data, price: Number(data.price), stock: Number(data.stock), category } : p
+      p.id === id
+        ? { ...p, ...data, price: Number(data.price), stock: Number(data.stock), category }
+        : p
     );
+
     return { data: products.find(p => p.id === id) };
   },
 
@@ -149,7 +175,13 @@ export const categoryService = {
 
   create: async (data: Partial<Category>) => {
     await delay();
-    const newCategory: Category = { id: ++nextId, name: data.name!, description: data.description! };
+
+    const newCategory: Category = {
+      id: ++nextId,
+      name: data.name!,
+      description: data.description!,
+    };
+
     categories.push(newCategory);
     return { data: newCategory };
   },
@@ -165,8 +197,6 @@ export const categoryService = {
     categories = categories.filter(c => c.id !== id);
     return { data: {} };
   },
-
-  
 };
 
 export default {};

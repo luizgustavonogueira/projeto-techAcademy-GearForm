@@ -22,8 +22,9 @@ export interface RegisterData {
   name: string;
   email: string;
   cpf: string;
-  password: string;
+
   confirmPassword: string;
+  password?: string;
 }
 
 export interface EditUserData {
@@ -78,3 +79,4 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 }
+
