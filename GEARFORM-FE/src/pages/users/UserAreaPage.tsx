@@ -248,7 +248,7 @@ function QuizModal({ curso, modIdx, onClose, onComplete }: any) {
                   cursor:ans?"default":"pointer",transition:"all 0.15s",display:"flex",alignItems:"center",gap:10,
                   clipPath:"polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%)" }}>
                   <span style={{ fontFamily:"'Space Mono',monospace",fontSize:10,
-                    color:i===sel||i===q.correta?col:C.muted,flexShrink:0 }}>{String.fromCharCode(65+i)}.</span>
+                    color:i===sel?col:C.muted,flexShrink:0 }}>{String.fromCharCode(65+i)}.</span>
                   {op}
                 </button>;
               })}

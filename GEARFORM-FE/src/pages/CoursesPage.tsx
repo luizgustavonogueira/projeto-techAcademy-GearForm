@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 /* ─── FONTS & KEYFRAMES ──────────────────────────────────────────────────── */
 const GLOBAL_CSS = `
@@ -547,38 +548,7 @@ export default function CoursesPage() {
         )}
 
         {/* ── NAVBAR ── */}
-        <nav style={{ position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",
-          width:"90%",maxWidth:1200,zIndex:100,
-          display:"flex",justifyContent:"space-between",alignItems:"center",
-          padding:"18px 36px",
-          background:"rgba(13,17,23,0.88)",backdropFilter:"blur(14px)",
-          borderRadius:14,boxShadow:`0 0 30px rgba(0,180,255,0.12), 0 0 0 1px ${C.border}` }}>
-          <a href="/" style={{ fontFamily:"'Bebas Neue',cursive",fontSize:22,letterSpacing:"0.06em",
-            color:C.text,textDecoration:"none" }}>
-            GEAR<span style={{ color:C.accent,textShadow:`0 0 12px ${C.accent}80` }}>FORM</span>
-          </a>
-          <ul style={{ listStyle:"none",margin:0,padding:0,display:"flex",gap:36 }}>
-            {[["Lar","/"],["Cursos","/cursos"],["Trilhas","#"],["Instrutores","#"],["Blog","#"]].map(([label,href])=>(
-              <li key={label}>
-                <a href={href} style={{ textDecoration:"none",color:label==="Cursos"?C.accent:C.text,
-                  fontWeight:500,fontSize:14,transition:"color 0.2s",position:"relative",
-                  textShadow:label==="Cursos"?`0 0 10px ${C.accent}60`:"none" }}
-                  onMouseEnter={e=>(e.currentTarget.style.color=C.accent)}
-                  onMouseLeave={e=>(e.currentTarget.style.color=label==="Cursos"?C.accent:C.text)}>
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <button onClick={()=>navigate("/login")} style={{ background:`linear-gradient(90deg,${C.accent},${C.violet})`,
-            border:"none",color:C.bg,fontWeight:700,fontSize:12,letterSpacing:"0.12em",
-            padding:"11px 26px",cursor:"pointer",transition:"all 0.2s",
-            clipPath:"polygon(0% 0%,85% 0%,100% 50%,85% 100%,0% 100%)" }}
-            onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.boxShadow=`0 0 20px ${C.accent}60`;}}
-            onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.boxShadow="none";}}>
-            ENTRAR
-          </button>
-        </nav>
+        <Navbar />
 
         {/* ── HERO ── */}
         <section style={{ paddingTop:160,paddingBottom:70,paddingLeft:60,paddingRight:60,

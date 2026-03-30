@@ -11,8 +11,8 @@ const Navbar: React.FC = () => {
     { label: "Home",        to: "/"        },
     { label: "Cursos",      to: "/cursos"  },
     { label: "Trilhas",     to: "/trilhas"        },
-    { label: "Instrutores", to: "#"        },
-    { label: "Blog",        to: "#"        },
+    
+   
   ];
 
   return (

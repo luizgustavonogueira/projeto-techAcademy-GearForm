@@ -1,4 +1,3 @@
-
 :root {
     --bg: #080a0f;
     --surface: #0d1117;
@@ -61,10 +60,10 @@
   margin: 0 auto;
 
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
 
-  padding: 80px 60px 60px; /* menos espaço em cima */
+  padding: 80px 60px 60px;
   position: relative;
 }
 
@@ -112,10 +111,11 @@
 
 .hero-content {
   margin-top: 40px;
- margin-right:99%;
+ margin-right: 60%;
   z-index: 2;
   max-width: 700px;
-
+  width: 100%;
+  text-align: left;
 }
 
   .hero-tag {
@@ -185,7 +185,7 @@
   display: flex;
   gap: 20px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .btn-primary {
@@ -487,4 +487,4 @@
     color: var(--muted);
     font-family: 'Space Mono', monospace;
     letter-spacing: 1px;
-  }
+  } 

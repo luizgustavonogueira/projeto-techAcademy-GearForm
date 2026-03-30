@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Navbar from "../components/Navbar";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface Step {
@@ -203,17 +204,7 @@ export default function TrilhasPage() {
       <div style={{ ...s.blob, width: 500, height: 500, background: "radial-gradient(circle, rgba(0,255,204,0.07) 0%, transparent 70%)", bottom: 100, left: -150 }} />
 
       {/* ── NAVBAR ── */}
-      <nav style={s.navbar}>
-        <div style={s.logo}>GEAR<span style={{ color: "#00ffcc" }}>FORM</span></div>
-        <div style={s.navLinks}>
-          {["Home", "Cursos", "Trilhas", "Instrutores", "Blog"].map((l) => (
-            <a key={l} href="#" className="nav-link" style={l === "Trilhas" ? { color: "#00ffcc" } : {}}>
-              {l}
-            </a>
-          ))}
-        </div>
-        <button className="btn-primary" style={s.navBtn}>ENTRAR</button>
-      </nav>
+      <Navbar />
 
       {/* ── HERO ── */}
       <section style={s.hero}>

@@ -11,6 +11,7 @@ import Home         from "./pages/Home";
 import CoursesPage  from "./pages/CoursesPage";
 import UserAreaPage from "./pages/users/UserAreaPage";
 
+
 // Admin pages
 import UsersListPage      from "./pages/users/UsersListPage";
 import UserFormPage       from "./pages/users/UserFormPage";
@@ -29,6 +30,9 @@ function App() {
       <Route path="/login"    element={<LoginPage />} />
       <Route path="/cursos"    element={<CoursesPage />} />
       <Route path="/register" element={<RegisterPage />} />
+     
+<Route path="/trilhas"   element={<TrilhasPage />} />
+
 
       {/* Área do usuário (cursos, trilhas, perfil) */}
       <Route path="/dashboard" element={
