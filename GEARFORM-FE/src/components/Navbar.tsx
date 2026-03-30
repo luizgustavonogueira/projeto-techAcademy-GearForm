@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
 
       <ul className="nav-links">
         <Link to="/">Home</Link>
-        <li><a href="#">Cursos</a></li>
+        <li><a href="/pages/CoursesPage.tsx">Cursos</a></li>
         <li><a href="#">Trilhas</a></li>
         <li><a href="#">Instrutores</a></li>
         <li><a href="#">Blog</a></li>
