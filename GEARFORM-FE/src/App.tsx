@@ -1,5 +1,6 @@
 // src/App.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
+import TrilhasPage from "./pages/TrilhasPage";
 
 // Auth pages
 import LoginPage    from "./pages/auth/LoginPage";
