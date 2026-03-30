@@ -1,16 +1,42 @@
-import type { User, Curso, Modulo, Matricula } from '../types';
+// src/services/mockData.ts
+import type { User, Curso, Modulo, Matricula, Product, Category } from '../types';
 
 /* ================================================================
    USERS
 ================================================================ */
 export const mockUsers: User[] = [
-  { id: 1, nome: 'Administrador GearForm', email: 'admin@gearform.com',  cpf: '000.000.000-00' },
-  { id: 2, nome: 'João Desenvolvedor',     email: 'joao@email.com',      cpf: '111.111.111-11' },
-  { id: 3, nome: 'Maria Técnica',          email: 'maria@email.com',     cpf: '222.222.222-22' },
+  { id: 1, nome: 'Administrador GearForm', email: 'admin@gearform.com',  cpf: '000.000.000-00', role: 'Admin'   },
+  { id: 2, nome: 'João Desenvolvedor',     email: 'joao@email.com',      cpf: '111.111.111-11', role: 'Usuário' },
+  { id: 3, nome: 'Maria Técnica',          email: 'maria@email.com',     cpf: '222.222.222-22', role: 'Usuário' },
 ];
 
 /* ================================================================
-   CURSOS  (mirror do banco de dados fornecido)
+   CATEGORIES  ← estava faltando, causava tela branca
+================================================================ */
+export const mockCategories: Category[] = [
+  { id: 1, name: 'Eletrônicos',    description: 'Produtos eletrônicos em geral' },
+  { id: 2, name: 'Ferramentas',    description: 'Ferramentas manuais e elétricas' },
+  { id: 3, name: 'Segurança',      description: 'EPIs e equipamentos de segurança' },
+  { id: 4, name: 'Automação',      description: 'Componentes para automação industrial' },
+  { id: 5, name: 'Informática',    description: 'Hardware, periféricos e acessórios' },
+];
+
+/* ================================================================
+   PRODUCTS  ← estava faltando, causava tela branca
+================================================================ */
+export const mockProducts: Product[] = [
+  { id: 1, name: 'Multímetro Digital',      description: 'Multímetro digital com display LCD', price: 89.90,  stock: 50, categoryId: 1, category: mockCategories[0] },
+  { id: 2, name: 'Chave de Fenda Set',       description: 'Kit com 6 chaves de fenda',          price: 34.90,  stock: 120, categoryId: 2, category: mockCategories[1] },
+  { id: 3, name: 'Capacete de Segurança',    description: 'Capacete classe A cor branca',        price: 28.50,  stock: 80, categoryId: 3, category: mockCategories[2] },
+  { id: 4, name: 'CLP Siemens S7-1200',      description: 'Controlador lógico programável',      price: 1490.00,stock: 10, categoryId: 4, category: mockCategories[3] },
+  { id: 5, name: 'Cabo de Rede Cat6 (10m)',  description: 'Cabo de rede UTP Cat6 10 metros',     price: 19.90,  stock: 200, categoryId: 5, category: mockCategories[4] },
+  { id: 6, name: 'Arduino Uno R3',           description: 'Placa Arduino Uno original',          price: 79.90,  stock: 35, categoryId: 1, category: mockCategories[0] },
+  { id: 7, name: 'Luva de Proteção',         description: 'Luvas de nitrila tamanho M (cx 100)', price: 42.00,  stock: 60, categoryId: 3, category: mockCategories[2] },
+  { id: 8, name: 'Sensor de Temperatura',    description: 'Sensor DS18B20 à prova d\'água',       price: 12.90,  stock: 150, categoryId: 4, category: mockCategories[3] },
+];
+
+/* ================================================================
+   CURSOS
 ================================================================ */
 export const mockCursos: Curso[] = [
   {
@@ -91,7 +117,7 @@ export const mockCursos: Curso[] = [
 ];
 
 /* ================================================================
-   MÓDULOS  (apenas os que têm dados no banco; os demais são gerados dinamicamente)
+   MÓDULOS
 ================================================================ */
 export const mockModulos: Modulo[] = [
   // Python (curso 1)
@@ -100,27 +126,23 @@ export const mockModulos: Modulo[] = [
   { id:3,  titulo:'Funções, módulos e orientação a objetos',            ordem:3, cursoId:1 },
   { id:4,  titulo:'Arquivos, exceções e bibliotecas essenciais',        ordem:4, cursoId:1 },
   { id:5,  titulo:'Projeto final: automação e API com Python',          ordem:5, cursoId:1 },
-
   // React (curso 2)
   { id:6,  titulo:'HTML5 e CSS3 moderno',                               ordem:1, cursoId:2 },
   { id:7,  titulo:'JavaScript ES6+: funções, promises e async/await',   ordem:2, cursoId:2 },
   { id:8,  titulo:'React: componentes, props e estado',                 ordem:3, cursoId:2 },
   { id:9,  titulo:'Hooks, Context API e React Router',                  ordem:4, cursoId:2 },
   { id:10, titulo:'TypeScript com React e projeto final',               ordem:5, cursoId:2 },
-
   // Node.js (curso 3)
   { id:11, titulo:'Fundamentos do Node.js e npm',                       ordem:1, cursoId:3 },
   { id:12, titulo:'Express: rotas, middlewares e controllers',          ordem:2, cursoId:3 },
   { id:13, titulo:'Autenticação JWT e bcrypt',                          ordem:3, cursoId:3 },
   { id:14, titulo:'Sequelize ORM e banco de dados',                     ordem:4, cursoId:3 },
   { id:15, titulo:'Deploy e boas práticas de API REST',                 ordem:5, cursoId:3 },
-
   // Eletromecânica (curso 5)
   { id:16, titulo:'Fundamentos de mecânica e eletricidade',             ordem:1, cursoId:5 },
   { id:17, titulo:'Motores elétricos e acionamentos',                   ordem:2, cursoId:5 },
   { id:18, titulo:'Transmissões mecânicas: correias e engrenagens',     ordem:3, cursoId:5 },
   { id:19, titulo:'Manutenção preventiva e corretiva',                  ordem:4, cursoId:5 },
-
   // Arduino (curso 10)
   { id:20, titulo:'Introdução ao Arduino e eletrônica básica',          ordem:1, cursoId:10 },
   { id:21, titulo:'Sensores: temperatura, umidade e presença',          ordem:2, cursoId:10 },
@@ -129,7 +151,7 @@ export const mockModulos: Modulo[] = [
 ];
 
 /* ================================================================
-   MATRÍCULAS de exemplo
+   MATRÍCULAS
 ================================================================ */
 export const mockMatriculas: Matricula[] = [
   { userId:2, cursoId:1,  status:'ativo',     progresso:65.00, modulos_feitos:[0,1,2] },

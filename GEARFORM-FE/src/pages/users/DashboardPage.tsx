@@ -1,24 +1,26 @@
-import { useAuth } from '../../contexts/AuthContext';
-import { AppLayout, PageHeader } from '../../components/layout';
-import { Card } from '../../components/ui';
-import { Link } from 'react-router-dom';
+// src/pages/users/DashboardPage.tsx
+import { useAuth } from "../../contexts/AuthContext";
+import { AppLayout, PageHeader } from "../../components/layout";
+import { Card } from "../../components/ui";
+import { Link } from "react-router-dom";
 
 const menuCards = [
-  { title: 'Usuários', description: 'Gerencie os usuários do sistema', icon: '👥', href: '/users', color: 'bg-blue-50 border-blue-200' },
-  { title: 'Produtos', description: 'Cadastre e edite produtos', icon: '📦', href: '/products', color: 'bg-green-50 border-green-200' },
-  { title: 'Categorias', description: 'Organize por categorias', icon: '🏷️', href: '/categories', color: 'bg-purple-50 border-purple-200' },
-  { title: 'Meu Perfil', description: 'Edite suas informações', icon: '👤', href: '/profile', color: 'bg-orange-50 border-orange-200' },
+  { title: "Usuários",   description: "Gerencie os usuários do sistema", icon: "👥", href: "/users",      color: "bg-blue-50 border-blue-200"   },
+  { title: "Produtos",   description: "Cadastre e edite produtos",       icon: "📦", href: "/products",   color: "bg-green-50 border-green-200"  },
+  { title: "Categorias", description: "Organize por categorias",         icon: "🏷️", href: "/categories", color: "bg-purple-50 border-purple-200"},
+  { title: "Meu Perfil", description: "Edite suas informações",          icon: "👤", href: "/profile",    color: "bg-orange-50 border-orange-200"},
 ];
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
 
   return (
     <AppLayout>
       <PageHeader
-        title={`${greeting}, ${user?.name?.split(' ')[0]}! 👋`}
+        // ← corrigido: user?.nome em vez de user?.name
+        title={`${greeting}, ${user?.nome?.split(" ")[0]}! 👋`}
         subtitle="Bem-vindo ao sistema de gestão. Escolha uma opção abaixo."
       />
 
@@ -39,7 +41,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
           <div>
             <p className="text-xs text-gray-400 uppercase font-medium">Nome</p>
-            <p className="text-sm text-gray-700 mt-0.5">{user?.name}</p>
+            {/* ← corrigido: user?.nome em vez de user?.name */}
+            <p className="text-sm text-gray-700 mt-0.5">{user?.nome}</p>
           </div>
           <div>
             <p className="text-xs text-gray-400 uppercase font-medium">E-mail</p>
@@ -47,7 +50,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <p className="text-xs text-gray-400 uppercase font-medium">Perfil</p>
-            <p className="text-sm text-gray-700 mt-0.5">{user?.role || 'Usuário'}</p>
+            <p className="text-sm text-gray-700 mt-0.5">{user?.role || "Usuário"}</p>
           </div>
         </div>
       </Card>

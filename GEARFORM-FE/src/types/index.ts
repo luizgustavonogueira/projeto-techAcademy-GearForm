@@ -1,9 +1,11 @@
+// src/types/index.ts
 
 export interface User {
   id: number;
-  name: string;
+  nome: string;       // ← era "name", alinhado com mockData e ProfilePage
   email: string;
   cpf: string;
+  avatar?: string;    // ← adicionado para foto de perfil
   role?: string;
   createdAt?: string;
 }
@@ -19,21 +21,46 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  name: string;
+  nome: string;
   email: string;
   cpf: string;
-
   confirmPassword: string;
   password?: string;
 }
 
 export interface EditUserData {
-  name: string;
+  nome: string;
   cpf: string;
   password?: string;
   confirmPassword?: string;
 }
 
+export interface Curso {
+  id: number;
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  nivel: string;
+  carga_horaria: number;
+  preco: number;
+  certificado: boolean;
+  ativo: boolean;
+}
+
+export interface Modulo {
+  id: number;
+  titulo: string;
+  ordem: number;
+  cursoId: number;
+}
+
+export interface Matricula {
+  userId: number;
+  cursoId: number;
+  status: string;
+  progresso: number;
+  modulos_feitos: number[];
+}
 
 export interface Product {
   id: number;
@@ -74,9 +101,7 @@ export interface PaginatedResponse<T> {
   lastPage: number;
 }
 
-
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 }
-
