@@ -1,227 +1,242 @@
-
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { userService } from '../../services/api';
-import { isValidCPF, formatCPF, getPasswordStrength, getApiErrorMessage } from '../../utils';
-import { AppLayout, PageHeader } from '../../components/layout';
-import { Input, Button, Alert, Card } from '../../components/ui';
-import type { User } from '../../types';
-
-
-function PasswordStrengthBar({ password }: { password: string }) {
-  if (!password) return null;
-  const { score, label, color } = getPasswordStrength(password);
-
+function ProfilePage({ user, onUpdateUser }: any) {
+  const [nome,    setNome]    = useState(user.nome);
+  const [oldPwd,  setOldPwd]  = useState("");
+  const [newPwd,  setNewPwd]  = useState("");
+  const [confPwd, setConfPwd] = useState("");
+  const [errors,  setErrors]  = useState<any>({});
+  const [saved,   setSaved]   = useState(false);
+  const [preview, setPreview] = useState<string>(user.avatar||"");
+ 
+  const fileRef = useRef<HTMLInputElement>(null);
+ 
+  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2*1024*1024) { alert("Foto máxima: 2 MB"); return; }
+    const reader = new FileReader();
+    reader.onload = ev => setPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+ 
+  const validate = () => {
+    const e: any = {};
+    if (!nome.trim())          e.nome = "Nome é obrigatório";
+    else if (nome.trim()<3)    e.nome = "Mínimo 3 caracteres";
+    if (newPwd) {
+      if (!oldPwd)             e.oldPwd = "Informe a senha atual";
+      if (newPwd.length < 8)   e.newPwd = "Mínimo 8 caracteres";
+      if (newPwd !== confPwd)  e.confPwd = "Senhas não coincidem";
+    }
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+ 
+  const save = () => {
+    if (!validate()) return;
+    onUpdateUser({ ...user, nome: nome.trim(), avatar: preview });
+    setSaved(true);
+    setOldPwd(""); setNewPwd(""); setConfPwd("");
+    setTimeout(()=>setSaved(false), 2500);
+  };
+ 
+  /* Força de senha */
+  const pwdScore = newPwd ? [newPwd.length>=8,/[A-Z]/.test(newPwd),/[0-9]/.test(newPwd),/[^A-Za-z0-9]/.test(newPwd)].filter(Boolean).length : 0;
+  const pwdColors = ["","#ff3d6e","#f59e0b",C.violet,C.accent];
+  const pwdLabels = ["","Fraca","Média","Boa","Forte"];
+ 
   return (
-    <div className="mt-1">
-      <div className="flex gap-1 mb-1">
-        {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className="h-1.5 flex-1 rounded-full transition-all"
-            style={{ backgroundColor: i <= score ? color : '#e5e7eb' }}
-          />
-        ))}
+    <div style={{padding:28,animation:"gf-fadeup 0.35s ease",maxWidth:600}}>
+      <div style={{marginBottom:28}}>
+        <p style={{margin:"0 0 4px",fontFamily:"'Space Mono',monospace",fontSize:9,
+          letterSpacing:"0.25em",color:"rgba(255,255,255,0.22)",textTransform:"uppercase"}}>
+          // CONFIGURAÇÕES
+        </p>
+        <h1 style={{margin:0,fontFamily:"'Bebas Neue',cursive",fontSize:36,
+          color:C.text,letterSpacing:"0.05em"}}>
+          MEU PERFIL
+        </h1>
       </div>
-      <p className="text-xs" style={{ color }}>
-        Força: {label}
-      </p>
+ 
+      {/* Avatar */}
+      <ClipCard style={{padding:20,marginBottom:20}}>
+        <p style={{margin:"0 0 14px",fontFamily:"'Space Mono',monospace",fontSize:9,
+          letterSpacing:"0.2em",color:C.muted,textTransform:"uppercase"}}>
+          FOTO DE PERFIL
+        </p>
+        <div style={{display:"flex",alignItems:"center",gap:20}}>
+          <div
+            onClick={()=>fileRef.current?.click()}
+            style={{
+              width:72,height:72,borderRadius:"50%",flexShrink:0,cursor:"pointer",
+              border:`2px solid ${C.accent}40`,overflow:"hidden",position:"relative",
+              background:`linear-gradient(135deg,${C.violet},${C.accent})`,
+              display:"flex",alignItems:"center",justifyContent:"center",
+            }}
+          >
+            {preview
+              ? <img src={preview} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              : <span style={{fontFamily:"'Bebas Neue',cursive",fontSize:28,color:"#fff"}}>
+                  {user.nome[0].toUpperCase()}
+                </span>
+            }
+            <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.45)",
+              display:"flex",alignItems:"center",justifyContent:"center",
+              opacity:0,transition:"opacity 0.2s",fontSize:18}}
+              onMouseEnter={e=>(e.currentTarget.style.opacity="1")}
+              onMouseLeave={e=>(e.currentTarget.style.opacity="0")}
+            >📷</div>
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} style={{display:"none"}}/>
+          <div>
+            <NeonBtn small onClick={()=>fileRef.current?.click()}>ALTERAR FOTO</NeonBtn>
+            <p style={{margin:"6px 0 0",fontSize:11,color:C.muted,fontFamily:"'Space Mono',monospace"}}>
+              JPG, PNG • Máx. 2 MB
+            </p>
+          </div>
+        </div>
+      </ClipCard>
+ 
+      {/* Info */}
+      <ClipCard style={{padding:20,marginBottom:20,display:"flex",flexDirection:"column",gap:16}}>
+        <p style={{margin:0,fontFamily:"'Space Mono',monospace",fontSize:9,
+          letterSpacing:"0.2em",color:C.muted,textTransform:"uppercase"}}>
+          INFORMAÇÕES PESSOAIS
+        </p>
+        <NeonInput label="Nome Completo" value={nome}
+          onChange={(e:any)=>setNome(e.target.value)} error={errors.nome}/>
+        <NeonInput label="E-mail (não editável)" value={user.email} disabled
+          hint="O e-mail não pode ser alterado pelo usuário."/>
+        <NeonInput label="CPF" value={user.cpf} disabled
+          hint="Para alterar o CPF, entre em contato com o suporte."/>
+      </ClipCard>
+ 
+      {/* Password */}
+      <ClipCard style={{padding:20,marginBottom:24,display:"flex",flexDirection:"column",gap:16}}>
+        <p style={{margin:0,fontFamily:"'Space Mono',monospace",fontSize:9,
+          letterSpacing:"0.2em",color:C.muted,textTransform:"uppercase"}}>
+          ALTERAR SENHA
+        </p>
+        <NeonInput label="Senha Atual" type="password" value={oldPwd}
+          onChange={(e:any)=>setOldPwd(e.target.value)} error={errors.oldPwd}/>
+        <NeonInput label="Nova Senha" type="password" value={newPwd}
+          onChange={(e:any)=>setNewPwd(e.target.value)} error={errors.newPwd}
+          hint="Mínimo 8 caracteres, letra maiúscula e número"/>
+        {newPwd && (
+          <div>
+            <div style={{display:"flex",gap:4,marginBottom:4}}>
+              {[1,2,3,4].map(i=>(
+                <div key={i} style={{flex:1,height:2,
+                  background:i<=pwdScore?pwdColors[pwdScore]:"rgba(255,255,255,0.08)",transition:"background 0.3s"}}/>
+              ))}
+            </div>
+            <p style={{margin:0,fontSize:10,fontFamily:"'Space Mono',monospace",
+              color:pwdColors[pwdScore]||C.muted,textTransform:"uppercase",letterSpacing:"0.08em"}}>
+              Força: {pwdLabels[pwdScore]}
+            </p>
+          </div>
+        )}
+        <NeonInput label="Confirmar Nova Senha" type="password" value={confPwd}
+          onChange={(e:any)=>setConfPwd(e.target.value)} error={errors.confPwd}/>
+      </ClipCard>
+ 
+      <div style={{display:"flex",alignItems:"center",gap:16}}>
+        <NeonBtn onClick={save}>SALVAR ALTERAÇÕES</NeonBtn>
+        {saved && (
+          <span style={{fontFamily:"'Space Mono',monospace",fontSize:11,
+            color:C.accent,letterSpacing:"0.08em",animation:"gf-fadeup 0.3s ease"}}>
+            ✓ SALVO COM SUCESSO
+          </span>
+        )}
+      </div>
     </div>
   );
 }
-
-
-function UserInfoCard() {
-  const { user } = useAuth();
-  return (
-    <Card className="p-5 mb-6">
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-bold">
-          {user?.name?.[0]?.toUpperCase()}
-        </div>
-        <div>
-          <h3 className="font-semibold text-gray-900">{user?.name}</h3>
-          <p className="text-sm text-gray-500">{user?.email}</p>
-          <p className="text-xs text-gray-400 mt-0.5">
-            CPF: {user?.cpf ? user.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : '—'}
-          </p>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-export default function ProfilePage() {
-  const { user, updateUser } = useAuth();
-
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    cpf: user?.cpf
-      ? user.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-      : '',
-    password: '',
-    confirmPassword: '',
+ 
+/* ─── MAIN APP ───────────────────────────────────────────────────────────── */
+export default function App() {
+  const [view,        setView]        = useState("explore");
+  const [collapsed,   setCollapsed]   = useState(false);
+  const [activeCurso, setActiveCurso] = useState<number|null>(null);
+  const [user, setUser] = useState({
+    id:2, nome:"João Desenvolvedor", email:"joao@email.com",
+    cpf:"111.111.111-11", avatar:"",
   });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [apiError, setApiError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (field: string, value: string) => {
-    const formatted = field === 'cpf' ? formatCPF(value) : value;
-    setFormData(prev => ({ ...prev, [field]: formatted }));
-    setErrors(prev => ({ ...prev, [field]: '' }));
-  };
-
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Nome é obrigatório';
-    }
-
-    if (!formData.cpf) {
-      newErrors.cpf = 'CPF é obrigatório';
-    } else if (!isValidCPF(formData.cpf)) {
-      newErrors.cpf = 'CPF inválido';
-    }
-
-    
-    if (formData.password) {
-      const { score } = getPasswordStrength(formData.password);
-      if (score < 3) {
-        newErrors.password = 'Senha fraca. Use maiúsculas, números e símbolos';
-      }
-      if (!formData.confirmPassword) {
-        newErrors.confirmPassword = 'Confirme a nova senha';
-      } else if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'As senhas não coincidem';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate() || !user) return;
-
-    setIsLoading(true);
-    setApiError('');
-    setSuccessMessage('');
-
-    try {
-      const payload: Record<string, string> = {
-        name: formData.name,
-        cpf: formData.cpf.replace(/\D/g, ''),
-      };
-
-      if (formData.password) {
-        payload.password = formData.password;
-      }
-
-      const response = await userService.update(user.id, payload) as { data: User };
-updateUser(response.data); 
-      setSuccessMessage('Perfil atualizado com sucesso!');
-      setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
-    } catch (error) {
-      setApiError(getApiErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const [matriculas, setMatriculas] = useState([
+    { cursoId:1, progresso:65, status:"ativo",     modulos_feitos:[0,1,2] },
+    { cursoId:3, progresso:20, status:"ativo",     modulos_feitos:[0]     },
+  ]);
+ 
   return (
-    <AppLayout>
-      <PageHeader
-        title="Meu Perfil"
-        subtitle="Gerencie suas informações pessoais"
-      />
-
-      <div className="max-w-lg">
-    
-        <UserInfoCard />
-
-        <Card className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-5">Editar informações</h3>
-
-          {successMessage && (
-            <div className="mb-4">
-              <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />
+    <>
+      <style>{GLOBAL_CSS}</style>
+      <div style={{display:"flex",height:"100vh",overflow:"hidden",background:C.bg}}>
+        <Sidebar
+          view={view} setView={setView}
+          user={user} collapsed={collapsed} setCollapsed={setCollapsed}
+        />
+ 
+        {/* Main content */}
+        <main style={{
+          flex:1,overflowY:"auto",
+          background:`radial-gradient(ellipse 80% 50% at 20% 0%,${C.violet}07 0%,transparent 60%)`,
+        }}>
+          {/* Top bar */}
+          <div style={{
+            position:"sticky",top:0,zIndex:100,
+            background:`${C.surface}e0`,backdropFilter:"blur(12px)",
+            borderBottom:`1px solid ${C.border}`,
+            padding:"0 28px",height:50,
+            display:"flex",alignItems:"center",justifyContent:"space-between",
+          }}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:C.accent,
+                animation:"gf-pulse 2s ease-in-out infinite",boxShadow:`0 0 8px ${C.accent}`}}/>
+              <span style={{fontFamily:"'Space Mono',monospace",fontSize:9,
+                letterSpacing:"0.2em",color:`${C.accent}80`,textTransform:"uppercase"}}>
+                SISTEMA ONLINE
+              </span>
             </div>
-          )}
-
-          {apiError && (
-            <div className="mb-4">
-              <Alert type="error" message={apiError} onClose={() => setApiError('')} />
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Input
-              label="Nome"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              error={errors.name}
-              required
-            />
-
-            
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">E-mail</label>
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                <span className="text-sm text-gray-500 flex-1">{user?.email}</span>
-                <span className="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded">Não editável</span>
-              </div>
-              <p className="text-xs text-gray-400">O e-mail não pode ser alterado</p>
-            </div>
-
-            <Input
-              label="CPF"
-              value={formData.cpf}
-              onChange={(e) => handleChange('cpf', e.target.value)}
-              error={errors.cpf}
-              maxLength={14}
-              required
-            />
-
-            <div className="border-t border-gray-100 pt-4 mt-1">
-              <p className="text-sm font-medium text-gray-700 mb-3">
-                Alterar senha <span className="text-gray-400 font-normal">(opcional)</span>
-              </p>
-
-              <div className="flex flex-col gap-4">
-                <div>
-                  <Input
-                    label="Nova senha"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => handleChange('password', e.target.value)}
-                    error={errors.password}
-                    placeholder="Deixe em branco para manter"
-                  />
-                  <PasswordStrengthBar password={formData.password} />
-                </div>
-
-                <Input
-                  label="Confirmar nova senha"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                  error={errors.confirmPassword}
-                  placeholder="Repita a nova senha"
-                />
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <span style={{fontSize:11,color:C.muted,fontFamily:"'Space Mono',monospace"}}>
+                {matriculas.length} curso{matriculas.length!==1?"s":""} matriculado{matriculas.length!==1?"s":""}
+              </span>
+              <div
+                onClick={()=>setView("profile")}
+                style={{
+                  width:28,height:28,borderRadius:"50%",cursor:"pointer",
+                  background:`linear-gradient(135deg,${C.violet},${C.accent})`,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontSize:12,fontWeight:700,color:"#fff",overflow:"hidden",
+                  border:`1px solid ${C.accent}40`,
+                }}
+              >
+                {user.avatar
+                  ? <img src={user.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/>
+                  : user.nome[0].toUpperCase()
+                }
               </div>
             </div>
-
-            <Button type="submit" isLoading={isLoading} size="lg">
-              Salvar alterações
-            </Button>
-          </form>
-        </Card>
+          </div>
+ 
+          {/* Pages */}
+          {view === "explore" && (
+            <ExplorePage
+              matriculas={matriculas} setMatriculas={setMatriculas}
+              setView={setView} setActiveCurso={setActiveCurso}
+            />
+          )}
+          {view === "myCourses" && (
+            <MyCoursesPage
+              matriculas={matriculas} setMatriculas={setMatriculas}
+              activeCurso={activeCurso} setActiveCurso={setActiveCurso}
+            />
+          )}
+          {view === "profile" && (
+            <ProfilePage user={user} onUpdateUser={setUser}/>
+          )}
+        </main>
       </div>
-    </AppLayout>
+    </>
   );
 }
+ 

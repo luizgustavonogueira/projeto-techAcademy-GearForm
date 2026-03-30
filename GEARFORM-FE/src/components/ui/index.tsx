@@ -307,3 +307,134 @@ export function EmptyState({ title, description }: { title: string; description?
     </div>
   );
 }
+
+/* ================================================================
+   Tipos existentes (mantidos)
+================================================================ */
+export interface User {
+  id: number;
+  nome: string;       // alinhado com o banco: coluna "nome"
+  email: string;
+  cpf: string;
+  avatar?: string;    // URL da foto de perfil (novo campo)
+  createdAt?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  nome: string;
+  email: string;
+  cpf: string;
+  password: string;
+}
+
+export interface EditUserData {
+  nome?: string;
+  avatar?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+/* ================================================================
+   Novos tipos — Cursos
+================================================================ */
+export type Categoria =
+  | 'Programação'
+  | 'Eletromecânica'
+  | 'Eletrônica'
+  | 'Redes'
+  | 'Design'
+  | 'Gestão'
+  | 'Outro';
+
+export type Nivel = 'Iniciante' | 'Intermediário' | 'Avançado';
+
+export type StatusMatricula = 'ativo' | 'concluido' | 'cancelado';
+
+export interface Curso {
+  id: number;
+  titulo: string;
+  descricao: string;
+  categoria: Categoria;
+  nivel: Nivel;
+  carga_horaria: number;    // em horas
+  preco: number;
+  certificado: boolean;
+  ativo: boolean;
+  imagem_url?: string;
+  createdAt?: string;
+  updatedAt?: string;
+
+  /* Relações carregadas junto */
+  modulos?: Modulo[];
+  _count?: { modulos: number };
+}
+
+/* ================================================================
+   Novos tipos — Módulos
+================================================================ */
+export interface Modulo {
+  id: number;
+  titulo: string;
+  ordem: number;
+  cursoId: number;
+  createdAt?: string;
+
+  /* Questões (podem vir no payload ou serem geradas no front) */
+  questoes?: Questao[];
+}
+
+/* ================================================================
+   Novos tipos — Questões (múltipla escolha)
+================================================================ */
+export interface Questao {
+  id: number;
+  pergunta: string;
+  opcoes: string[];
+  correta: number;   // índice (0-based) da opção correta
+  explicacao: string;
+}
+
+/* ================================================================
+   Novos tipos — Matrículas
+================================================================ */
+export interface Matricula {
+  id?: number;
+  userId: number;
+  cursoId: number;
+  status: StatusMatricula;
+  progresso: number;          // 0.00 – 100.00
+  data_matricula?: string;
+  modulos_feitos?: number[];  // IDs/índices dos módulos concluídos (front only)
+
+  /* Relações */
+  curso?: Curso;
+}
+
+/* ================================================================
+   Respostas paginadas (genérico)
+================================================================ */
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  perPage: number;
+  lastPage: number;
+}
+
+/* ================================================================
+   Erros de API
+================================================================ */
+export interface ApiError {
+  message: string;
+  errors?: Record<string, string[]>;
+}
