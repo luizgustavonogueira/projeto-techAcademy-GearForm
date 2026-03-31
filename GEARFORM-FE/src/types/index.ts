@@ -2,10 +2,10 @@
 
 export interface User {
   id: number;
-  nome: string;       // ← era "name", alinhado com mockData e ProfilePage
+  name: string;
   email: string;
   cpf: string;
-  avatar?: string;    // ← adicionado para foto de perfil
+  avatar?: string;
   role?: string;
   createdAt?: string;
 }
@@ -21,15 +21,15 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  nome: string;
+  name: string;
   email: string;
   cpf: string;
-  confirmPassword: string;
-  password?: string;
+  password: string;
+  confirmPassword?: string;
 }
 
 export interface EditUserData {
-  nome: string;
+  name: string;
   cpf: string;
   password?: string;
   confirmPassword?: string;
@@ -104,4 +104,23 @@ export interface PaginatedResponse<T> {
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
+}
+
+export interface CursoCard {
+  id: number;
+  titulo: string;
+  cat: string;
+  nivel: string;
+  carga: number;
+  preco: number;
+  modulos: number;
+  emoji: string;
+  desc: string;
+}
+
+export interface MatriculaLocal {
+  cursoId: number;
+  progresso: number;
+  status: string;
+  modulos_feitos: number[];
 }

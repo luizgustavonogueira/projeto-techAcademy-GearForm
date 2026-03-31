@@ -1,14 +1,14 @@
 // src/components/layout/index.tsx
-import { useState, type ReactNode } from "react";
-import { Link, useLocation, useNavigate, Navigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useState, type ReactNode } from 'react';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
-  { href: "/dashboard",  label: "Dashboard",  icon: "🏠" },
-  { href: "/users",      label: "Usuários",   icon: "👥" },
-  { href: "/products",   label: "Produtos",   icon: "📦" },
-  { href: "/categories", label: "Categorias", icon: "🏷️" },
-  { href: "/profile",    label: "Meu Perfil", icon: "👤" },
+  { href: '/dashboard',  label: 'Dashboard',  icon: '🏠' },
+  { href: '/users',      label: 'Usuários',   icon: '👥' },
+  { href: '/products',   label: 'Produtos',   icon: '📦' },
+  { href: '/categories', label: 'Categorias', icon: '🏷️' },
+  { href: '/profile',    label: 'Meu Perfil', icon: '👤' },
 ];
 
 function Sidebar({ isOpen }: { isOpen: boolean }) {
@@ -16,17 +16,13 @@ function Sidebar({ isOpen }: { isOpen: boolean }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <aside className={`
       fixed top-0 left-0 h-full bg-gray-900 text-white z-40 transition-all duration-300
-      ${isOpen ? "w-64" : "w-16"}
+      ${isOpen ? 'w-64' : 'w-16'}
     `}>
-      {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-700">
         <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
           G
@@ -34,7 +30,6 @@ function Sidebar({ isOpen }: { isOpen: boolean }) {
         {isOpen && <span className="font-semibold text-sm">GearForm</span>}
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 py-4">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.href);
@@ -44,8 +39,8 @@ function Sidebar({ isOpen }: { isOpen: boolean }) {
               to={item.href}
               className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors
                 ${isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
             >
               <span className="text-lg shrink-0">{item.icon}</span>
@@ -55,12 +50,10 @@ function Sidebar({ isOpen }: { isOpen: boolean }) {
         })}
       </nav>
 
-      {/* Usuário + logout */}
       <div className="border-t border-gray-700 p-4">
         {isOpen && (
           <div className="mb-3">
-            {/* ← corrigido: user?.nome em vez de user?.name */}
-            <p className="text-xs font-medium text-white truncate">{user?.nome}</p>
+            <p className="text-xs font-medium text-white truncate">{user?.name}</p>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
           </div>
         )}
@@ -76,19 +69,12 @@ function Sidebar({ isOpen }: { isOpen: boolean }) {
   );
 }
 
-function Topbar({
-  onMenuClick,
-  isSidebarOpen,
-}: {
-  onMenuClick: () => void;
-  isSidebarOpen: boolean;
-}) {
+function Topbar({ onMenuClick, isSidebarOpen }: { onMenuClick: () => void; isSidebarOpen: boolean }) {
   const location = useLocation();
   const { user } = useAuth();
 
   const pageTitle =
-    navItems.find((n) => location.pathname.startsWith(n.href))?.label ||
-    "Dashboard";
+    navItems.find((n) => location.pathname.startsWith(n.href))?.label || 'Dashboard';
 
   return (
     <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
@@ -98,17 +84,16 @@ function Topbar({
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500"
           aria-label="Toggle menu"
         >
-          {isSidebarOpen ? "✕" : "☰"}
+          {isSidebarOpen ? '✕' : '☰'}
         </button>
         <h1 className="font-semibold text-gray-800">{pageTitle}</h1>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-semibold text-sm">
-          {/* ← corrigido: user?.nome em vez de user?.name */}
-          {user?.nome?.[0]?.toUpperCase()}
+          {user?.name?.[0]?.toUpperCase()}
         </div>
-        <span className="text-sm text-gray-600 hidden sm:block">{user?.nome}</span>
+        <span className="text-sm text-gray-600 hidden sm:block">{user?.name}</span>
       </div>
     </header>
   );
@@ -120,15 +105,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar isOpen={sidebarOpen} />
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-16"
-        }`}
-      >
-        <Topbar
-          onMenuClick={() => setSidebarOpen((p) => !p)}
-          isSidebarOpen={sidebarOpen}
-        />
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+        <Topbar onMenuClick={() => setSidebarOpen(p => !p)} isSidebarOpen={sidebarOpen} />
         <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
@@ -176,24 +154,9 @@ export function PrivateRoute({ children }: { children: ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <svg
-            className="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
+          <svg className="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
           <p className="text-gray-500 text-sm">Verificando autenticação...</p>
         </div>

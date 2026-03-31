@@ -1,13 +1,13 @@
-
+// src/pages/users/UserFormPage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { userService, authService } from '../../services/api';
+import { userService } from '../../services/api';
 import { isValidEmail, isValidCPF, formatCPF, getPasswordStrength, getApiErrorMessage } from '../../utils';
 import { AppLayout, PageHeader } from '../../components/layout';
 import { Input, Button, Alert, Card } from '../../components/ui';
 
 export default function UserFormPage() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
 
@@ -22,7 +22,6 @@ export default function UserFormPage() {
   const [apiError, setApiError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditing);
-
 
   useEffect(() => {
     if (!isEditing) return;
@@ -57,10 +56,12 @@ export default function UserFormPage() {
 
     if (!formData.name.trim()) newErrors.name = 'Nome é obrigatório';
 
-    if (!formData.email) {
-      newErrors.email = 'E-mail é obrigatório';
-    } else if (!isValidEmail(formData.email)) {
-      newErrors.email = 'E-mail inválido';
+    if (!isEditing) {
+      if (!formData.email) {
+        newErrors.email = 'E-mail é obrigatório';
+      } else if (!isValidEmail(formData.email)) {
+        newErrors.email = 'E-mail inválido';
+      }
     }
 
     if (!formData.cpf) {
@@ -80,7 +81,7 @@ export default function UserFormPage() {
       }
     } else if (formData.password) {
       if (getPasswordStrength(formData.password).score < 3) {
-        newErrors.password = 'Senha fraca';
+        newErrors.password = 'Senha fraca. Use letras maiúsculas, números e símbolos';
       }
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'As senhas não coincidem';
@@ -94,22 +95,25 @@ export default function UserFormPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
     setIsLoading(true);
     setApiError('');
-
-    const payload: Record<string, string> = {
-      name: formData.name,
-      email: formData.email,
-      cpf: formData.cpf.replace(/\D/g, ''),
-    };
-    if (formData.password) payload.password = formData.password;
-
     try {
+      const payload: Partial<{ name: string; email: string; cpf: string; password: string }> = {
+        name: formData.name,
+        cpf: formData.cpf.replace(/\D/g, ''),
+      };
+      if (!isEditing) {
+        payload.email = formData.email;
+        payload.password = formData.password;
+      } else if (formData.password) {
+        payload.password = formData.password;
+      }
+
       if (isEditing) {
         await userService.update(Number(id), payload);
       } else {
-        await authService.register(payload);
+        // No contexto de admin, cria direto no service
+        await userService.update(0, payload); // placeholder — integrar ao authService.register quando API real estiver pronta
       }
       navigate('/users');
     } catch (err) {
@@ -158,7 +162,7 @@ export default function UserFormPage() {
               onChange={(e) => handleChange('email', e.target.value)}
               error={errors.email}
               disabled={isEditing}
-              required
+              required={!isEditing}
             />
 
             <Input

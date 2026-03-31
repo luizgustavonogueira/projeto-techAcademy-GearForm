@@ -1,6 +1,6 @@
-
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import type { User } from "../types";
+// src/contexts/AuthContext.tsx
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import type { User } from '../types';
 import { authService } from '../services/api';
 
 interface AuthContextData {
@@ -14,7 +14,6 @@ interface AuthContextData {
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
-
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -30,22 +29,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-
     if (savedToken && savedUser) {
       setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      setUser(JSON.parse(savedUser) as User);
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     const response = await authService.login(email, password);
     const { token: newToken, user: newUser } = response.data;
-
-
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
-
     setToken(newToken);
     setUser(newUser);
   };
@@ -64,15 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated: !!token,
-        isLoading,
-        login,
-        logout,
-        updateUser,
-      }}
+      value={{ user, token, isAuthenticated: !!token, isLoading, login, logout, updateUser }}
     >
       {children}
     </AuthContext.Provider>

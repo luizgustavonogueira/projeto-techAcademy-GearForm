@@ -1,25 +1,16 @@
-// =====================================================
-// PÁGINA DE LISTAGEM DE USUÁRIOS (CRUD)
-// =====================================================
+// src/pages/users/UsersListPage.tsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { userService } from '../../services/api';
-import  type { User, PaginatedResponse } from '../../types';
+import type { User, PaginatedResponse } from '../../types';
 import { formatCPF, getApiErrorMessage } from '../../utils';
 import { AppLayout, PageHeader } from '../../components/layout';
 import {
   Button, Card, Alert, LoadingSpinner,
-  EmptyState, Pagination, ConfirmModal, Badge
+  EmptyState, Pagination, ConfirmModal, Badge,
 } from '../../components/ui';
 
-// Componente exclusivo da página: linha da tabela
-function UserRow({
-  user,
-  onDelete,
-}: {
-  user: User;
-  onDelete: (user: User) => void;
-}) {
+function UserRow({ user, onDelete }: { user: User; onDelete: (user: User) => void }) {
   return (
     <tr className="hover:bg-gray-50 transition-colors">
       <td className="px-4 py-3">
@@ -102,65 +93,47 @@ export default function UsersListPage() {
         }
       />
 
-      {error && (
-        <div className="mb-4">
-          <Alert type="error" message={error} onClose={() => setError('')} />
-        </div>
-      )}
+      {error && <div className="mb-4"><Alert type="error" message={error} onClose={() => setError('')} /></div>}
 
       <Card>
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : users.length === 0 ? (
-          <EmptyState
-            title="Nenhum usuário encontrado"
-            description="Comece criando um novo usuário."
-          />
+        {isLoading ? <LoadingSpinner /> : users.length === 0 ? (
+          <EmptyState title="Nenhum usuário cadastrado" />
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nome</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">E-mail</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">CPF</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Perfil</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ações</th>
+                    {['Nome', 'E-mail', 'CPF', 'Perfil', 'Ações'].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {users.map((user) => (
-                    <UserRow
-                      key={user.id}
-                      user={user}
-                      onDelete={setDeleteTarget}
-                    />
+                  {users.map(u => (
+                    <UserRow key={u.id} user={u} onDelete={setDeleteTarget} />
                   ))}
                 </tbody>
               </table>
             </div>
-
             <Pagination
-              currentPage={pagination.page}
+              page={pagination.page}
               lastPage={pagination.lastPage}
-              total={pagination.total}
-              perPage={pagination.perPage}
               onPageChange={fetchUsers}
             />
           </>
         )}
       </Card>
 
-      {/* Modal de confirmação de exclusão */}
-      <ConfirmModal
-        isOpen={!!deleteTarget}
-        title="Excluir usuário"
-        message={`Tem certeza que deseja excluir "${deleteTarget?.name}"? Esta ação não pode ser desfeita.`}
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteTarget(null)}
-        isLoading={isDeleting}
-      />
+      {deleteTarget && (
+        <ConfirmModal
+          title="Excluir usuário"
+          message={`Tem certeza que deseja excluir "${deleteTarget.name}"?`}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+          isLoading={isDeleting}
+        />
+      )}
     </AppLayout>
   );
 }
